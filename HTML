@@ -1,62 +1,44 @@
 import React, { useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { motion } from "framer-motion";
 
-const words = ["react", "python", "coding", "puzzle", "anagram", "javascript"];
-
-const shuffleWord = (word) => {
-  return word
-    .split("")
-    .sort(() => Math.random() - 0.5)
-    .join("");
-};
-
-export default function AnagramGame() {
-  const [originalWord, setOriginalWord] = useState("");
-  const [shuffledWord, setShuffledWord] = useState("");
-  const [input, setInput] = useState("");
-  const [message, setMessage] = useState("");
+export default function SalaryCounter() {
+  const [hourlyWage, setHourlyWage] = useState(25); // Default hourly wage
+  const [earnings, setEarnings] = useState(0);
+  const [intervalTime, setIntervalTime] = useState(36000); // Default interval
 
   useEffect(() => {
-    generateNewWord();
-  }, []);
-
-  const generateNewWord = () => {
-    const word = words[Math.floor(Math.random() * words.length)];
-    setOriginalWord(word);
-    setShuffledWord(shuffleWord(word));
-    setInput("");
-    setMessage("");
-  };
-
-  const checkAnswer = () => {
-    if (input.toLowerCase() === originalWord) {
-      setMessage("Correct! Well done.");
-    } else {
-      setMessage("Try again!");
+    if (hourlyWage > 0) {
+      const centsPerSecond = (hourlyWage / 3600) * 10;
+      setIntervalTime(1000 / centsPerSecond);
     }
-  };
+  }, [hourlyWage]);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setEarnings((prev) => prev + 0.1);
+    }, intervalTime);
+
+    return () => clearInterval(interval);
+  }, [intervalTime]);
 
   return (
-    <div className="flex flex-col items-center gap-4 p-6">
-      <Card className="w-96 text-center p-4">
-        <CardContent>
-          <h2 className="text-xl font-bold mb-2">Anagram Game</h2>
-          <p className="text-lg">Unscramble the word: <strong>{shuffledWord}</strong></p>
-          <input
-            type="text"
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            className="border p-2 mt-4 w-full rounded"
-            placeholder="Your answer"
-          />
-          <div className="flex justify-between mt-4">
-            <Button onClick={checkAnswer} className="bg-blue-500 text-white">Submit</Button>
-            <Button onClick={generateNewWord} className="bg-gray-500 text-white">New Word</Button>
-          </div>
-          {message && <p className="mt-4 text-lg font-bold">{message}</p>}
-        </CardContent>
-      </Card>
+    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-900 text-white">
+      <h1 className="text-3xl font-bold mb-4">Salary Counter</h1>
+      <input
+        type="number"
+        className="p-2 text-black rounded-md mb-4"
+        value={hourlyWage}
+        onChange={(e) => setHourlyWage(parseFloat(e.target.value) || 0)}
+        placeholder="Enter hourly wage"
+      />
+      <div className="text-2xl font-semibold mb-4">${earnings.toFixed(2)}</div>
+      
+      {/* Sand Timer Animation */}
+      <motion.div
+        className="w-16 h-16 bg-yellow-500 rounded-full relative"
+        animate={{ scale: [1, 0.8, 1], opacity: [1, 0.5, 1] }}
+        transition={{ repeat: Infinity, duration: intervalTime / 1000 }}
+      />
     </div>
   );
 }
